@@ -1,0 +1,75 @@
+@startuml architecture
+
+class AdresseIP {
+    - adresse : String
+    - masque : String
+    + getAdresseIP() : String
+    + getMasque() : String
+    + getAdresseReseau() : String
+    + {static} estValide(String adresse) : boolean
+}
+
+class EquipementIP {
+    - nom : String
+    - isRouter : boolean
+    + ajouterInterface(nom : String, AdresseIP : adresse): void
+    + getInterfaceParNom(nom : String) : InterfaceIP
+    + ajouterLien(nom : String, interfaceReseau : InterfaceIP) : void
+    + recevoir(message : MessageIP) : void
+    + envoyer(message : MessageIP) : boolean
+    + getRoutingTable() : RoutingTable
+    + setRoutingTable(table : RoutingTable) : void
+}
+
+class InterfaceIP {
+    - nom : String
+    + ajouterLien(interfaceReseau : InterfaceIP) : void
+    + getAdresse() : AdresseIP
+    + getNom() : String
+    + envoyer(message : MessageIP) : boolean
+    + recevoir(message : MessageIP) : boolean
+}
+
+class MessageIP {
+    - contenu : String
+    + getSource() : AdresseIP
+    + getDestination() : AdresseIP
+    + getContenu() : String
+}
+
+class Route {
+    - destNetwork : String
+    - netmask : String
+    - gateway : String
+    - outInterface : String
+    + getDestNetwork() : String
+    + getNetmask() : String
+    + getGateway() : String
+    + getOutInterface() : String
+    + setDestNetwork(pDest : String) : void
+    + setNetmask(pMask : String) : void
+    + setGateway(pGateway : String) : void
+    + setOutInterface(pOut : String) : void
+    + equals(Object o) : boolean
+    + isInRoute(adresse : String) : boolean
+ }
+
+ class RoutingTable {
+    + addRoute(dest : String, mask : String, gateway : String, out : String) : void
+    + removeRoute (index : int) : void
+    + removeRoute (dest : String, mask : String, gateway : String, out : String) : void
+    + showRoute() :void
+    + getInterfaceParNom(adresse : AdresseIP): String
+ }
+
+EquipementIP *-- InterfaceIP
+EquipementIP o-- MessageIP
+EquipementIP *-- RoutingTable
+InterfaceIP *-- MessageIP
+MessageIP -- AdresseIP
+RoutingTable *-- Route
+Route .. AdresseIP
+InterfaceIP -- AdresseIP
+
+
+@enduml

@@ -1,0 +1,132 @@
+@startuml architecture
+
+class IPAddress {
+    - address : int[]
+    - mask : int[]
+    + getIPAddress() : String
+    + getNetworkMask() : String
+    + getNetworkAddress() : String
+    + {static} isValide(String address) : boolean
+}
+
+class IPEquipement {
+    - name : String
+    - networkInterfaces : List<IPInterface>
+    - receivedMessage : List<IPMessage>
+    - isRouter : boolean
+    - routingTable: RoutingTable
+    + getName() : String
+    + addInterface(name : String, IPAddress : address): IPInterface
+    + addInterface(newInterface : IPInterface) : IPInterface
+    + isRouter() : boolean
+    + getInterfaceByName(name : String) : IPInterface
+    + listInterface() : List<String>
+    + receive(message : IPMessage) : void
+    + send(message : IPMessage) : boolean
+    + getRoutingTable() : RoutingTable
+    + setRoutingTable(table : RoutingTable) : void
+    + equipementHasIP(address : IPAddress) : boolean
+    + addRoute(dest : String, mask : String, out : String): void
+    + setDefaultRoute (out : String) : void
+}
+
+class IPNetwork {
+    - {static} number : int
+    + addIPEquipment(name : String, isRouter : boolean) : void
+    + addIPEquipment(equipment : IPEquipment) : void
+    + removeIPEquipment(name : String) : void
+    + getIPEquipment(name : String) : IPEquipment
+    + getIPEquipmentNameList() : List<String>
+    + getIPEquipmentNumber() : int
+    + addLink(equipment1 : IPEquipment, interfaceName1 : String, equipment2 : IPEquipment, interfaceName2 : String, bandwidth : double, linkLength : int) : void
+    + removeLink(equipment1 : IPEquipment, interfaceName1 : String, equipement2 : IPEquipement, interfaceName2 : String) : void
+    + getLinks() : List<IPLink>
+    + {static} generateName() : String
+}
+
+class IPInterface {
+    - name : String
+    - link : IPLink
+    - address : IPAddress
+    - receivedMessage : List<IPMessage>
+    - equipement : IPEquipement
+    - interfaceBandwidth : double
+    + addLink(link : IPLink) : void
+    + removeLink() : void
+    + getLink() : IPLink
+    + isLinkedToRouter() : boolean
+    + getAddress() : IPAddress
+    + getName() : String
+    + send(message : IPMessage) : boolean
+    + receive(message : IPMessage) : boolean
+    + getInterfaceBandwidth() : double
+    + setInterfaceBandwidth(bandwidth : double) : void
+}
+
+class IPLink{
+    - linkBandwidth : double
+    - linkLength : int
+    - ends : IPInterface[]
+    + getEnds() : IPInterface[]
+    + getLinkBandwidth() : double
+    + setLinkBandwidth(newBandwidth : double) : void
+    + getLinkLength() : int
+    + setLinkLength(linkLength : int) : void
+    + send(message : IPMessage, source : IPInterface) : boolean
+
+}
+
+class IPMessage {
+    - source : IPAddress
+    - destination : IPAddress
+    - content : String
+    - {static, final} headerLength : int
+    + getSource() : IPAddress
+    + getDestination() : IPAddress
+    + getContent() : String
+    + {static} getHeaderLength() : int
+    + getPayloadLength() : int
+}
+
+class Route {
+    - destNetwork : String
+    - netmask : String
+    - outInterface : IPInterface
+    + getDestAddress() : String
+    + getDestMask() : String
+    + getOutInterface() : IPInterface
+    + setDestNetwork(pDest : String) : void
+    + setNetmask(pMask : String) : void
+    + setOutInterface(pOut : IPInterface) : void
+    + equals(Object o) : boolean
+    + isInRoute(address : String) : boolean
+ }
+
+ class RoutingTable {
+    - defaultRoute : Route
+    - routeListe : List<Route>
+    + addRoute(dest : String, mask : String, out : IPInterface) : void
+    + removeRoute (index : int) : void
+    + removeRoute (dest : String, mask : String, out : IPInterface) : void
+    + getDefaultRoute() : Route
+    + setDefaultRoute() : void
+    + showRoute() : void
+    + getInterfaceByIP(address : IPAddress): IPInterface
+ }
+
+IPNetwork " * " *--x IPEquipement
+IPNetwork " * " *--x IPLink
+IPMessage " 2 " --x IPAddress
+IPEquipement " *  " *-- " 1 " IPInterface
+IPEquipement " *  " o-x IPMessage
+IPEquipement " 1 " *--x RoutingTable
+IPInterface " *  " *--x IPMessage
+RoutingTable " *  " *--x Route
+Route .. IPAddress
+IPInterface " 1 " *--x IPAddress
+IPInterface " 1 " -- " 2 " IPLink
+Route " 1 " -x IPInterface
+
+
+
+@enduml
